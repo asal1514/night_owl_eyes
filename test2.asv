@@ -1,0 +1,83 @@
+function Number=test2(I1,fig)
+clc
+% close all
+% clear all
+%%
+%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+% I1=imread('8.jpg');
+%%
+%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+I2=rgb2gray(I1);
+I3=I1(:,:,1);
+I4=I1(:,:,2);
+I5=I1(:,:,3);
+if fig==
+figure(2),imshow(I5);
+title('Gray level image')
+%%
+%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+I22 = imadjust(I5);
+figure(3),imshow(I22);
+title('image adjusted')
+%%
+%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+BWs = edge(I22, 'sobel', (graythresh(I22) * .1));
+% BWs = edge(I22, 'sobel');
+figure(4), imshow(BWs), title('binary gradient mask')
+%%
+%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+se90 = strel('line', 3, 90);
+se0 = strel('line', 3, 0);
+BWsdil = imdilate(BWs, [se90 se0]);
+figure(5), imshow(BWsdil), title('dilated gradient mask')
+%%
+%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+BWdfill = imfill(BWsdil, 'holes');
+figure(6), imshow(BWdfill);
+title('binary image with filled holes')
+%%
+%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ff1=I22;
+ff1(find(BWdfill==0))=255;
+figure(7),imshow(ff1)
+%%
+%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ff2=im2bw(ff1,220/225);
+figure(8),imshow(ff2)
+title('Balck and white image')
+%%
+%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+se = strel('disk',3);
+ff3 = imclose(ff2,se);
+figure(9),imshow(ff3)
+%%
+%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ se1 = strel('line',6,90);
+ se2 = strel('line',5,0);
+ ff4 = ~imerode(~ff3,[se1 se2]);
+ figure(10),imshow(ff4)
+%%
+%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ 
+  se = strel('disk',4);    
+ ff4 = imerode(ff4,se);
+ figure(11),imshow(ff4)
+%%
+%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+% ff5=~removee(~ff4,60);
+ff5 = ~bwareaopen(~ff4,200,4);
+figure(12),imshow(ff5)
+%%
+%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ff6 = ~bwareaopen(ff5,250,8);
+figure(13),imshow(ff6)
+%%
+%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ff7=bwlabel(ff6);
+figure(14),imshow(ff7)
+Number=max(ff7(:));
+fprintf('Number of object in the image is: %d\n',Number);
+%%
+%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+figure(1),imshow(I1);
+title('Main Image')
+%%
